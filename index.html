@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор ремонта ванной комнаты</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            color: #2d2d2d;
+        }
+
+        .calculator-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .calculator-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .calculator-header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            color: #2d2d2d;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .calculator-header p {
+            font-size: 16px;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .calculator-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            padding: 50px;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d2d2d;
+            margin-bottom: 35px;
+            text-align: center;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .option-card {
+            background: #f8f8f8;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 25px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .option-card:hover {
+            background: #fff;
+            border-color: #c8a16e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .option-card.selected {
+            background: #3d3027;
+            color: #fff;
+            border-color: #3d3027;
+        }
+
+        .option-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .option-card p {
+            font-size: 13px;
+            color: #888;
+            line-height: 1.5;
+        }
+
+        .option-card.selected p {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .checkbox-options {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .checkbox-card {
+            background: #f8f8f8;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .checkbox-card:hover {
+            background: #fff;
+            border-color: #c8a16e;
+        }
+
+        .checkbox-card.selected {
+            background: #fff;
+            border-color: #3d3027;
+        }
+
+        .checkbox-card input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: #3d3027;
+        }
+
+        .checkbox-label {
+            flex: 1;
+        }
+
+        .checkbox-label h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #2d2d2d;
+        }
+
+        .checkbox-label span {
+            font-size: 14px;
+            color: #c8a16e;
+            font-weight: 500;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 16px 40px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: #3d3027;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #2d2419;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(61,48,39,0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #666;
+            border: 2px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            border-color: #c8a16e;
+            color: #3d3027;
+        }
+
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .result-screen.active {
+            display: block;
+        }
+
+        .result-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2d2d2d;
+            margin-bottom: 15px;
+        }
+
+        .result-subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .discount-banner {
+            background: linear-gradient(135deg, #c8a16e 0%, #d4b17e 100%);
+            color: #fff;
+            padding: 25px 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(200, 161, 110, 0.3);
+        }
+
+        .discount-banner h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .discount-banner p {
+            font-size: 15px;
+            opacity: 0.95;
+            line-height: 1.5;
+        }
+
+        .discount-label {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.25);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .price-range {
+            background: linear-gradient(135deg, #3d3027 0%, #5a4636 100%);
+            color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .price-label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .price-value {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #c8a16e;
+        }
+
+        .price-note {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 30px auto 0;
+        }
+
+        .summary-block {
+            background: #f8f8f8;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .summary-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2d2d2d;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: #2d2d2d;
+            font-size: 15px;
+        }
+
+        .btn-submit {
+            background: #25d366;
+            color: #fff;
+            padding: 18px 50px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-submit:hover {
+            background: #1fb855;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(37,211,102,0.4);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #c8a16e 0%, #d4b17e 100%);
+            transition: width 0.4s ease;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-card {
+                padding: 30px 20px;
+            }
+
+            .calculator-header h1 {
+                font-size: 32px;
+            }
+
+            .step-title {
+                font-size: 24px;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .price-value {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="calculator-header">
+            <h1>Рассчитайте стоимость<br>ремонта ванной комнаты</h1>
+            <p>Получите предварительную оценку бюджета за 2 минуты</p>
+        </div>
+
+        <div class="calculator-card">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <!-- Шаг 1: Тип помещения -->
+            <div class="step active" data-step="1">
+                <h2 class="step-title">Выберите тип помещения</h2>
+                <div class="options-grid">
+                    <div class="option-card" data-value="bathroom">
+                        <h3>Ванная комната</h3>
+                        <p>Отдельная ванная без туалета</p>
+                    </div>
+                    <div class="option-card" data-value="toilet">
+                        <h3>Туалет</h3>
+                        <p>Отдельный санузел</p>
+                    </div>
+                    <div class="option-card" data-value="combined">
+                        <h3>Совмещённый санузел</h3>
+                        <p>Ванная и туалет вместе</p>
+                    </div>
+                    <div class="option-card" data-value="bathroom_toilet">
+                        <h3>Ванная + туалет</h3>
+                        <p>Два раздельных помещения</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Шаг 2: Площадь -->
+            <div class="step" data-step="2">
+                <h2 class="step-title">Укажите площадь помещения</h2>
+                <div class="options-grid">
+                    <div class="option-card" data-value="small">
+                        <h3>До 3 м²</h3>
+                        <p>Компактное помещение</p>
+                    </div>
+                    <div class="option-card" data-value="medium">
+                        <h3>3–5 м²</h3>
+                        <p>Стандартная площадь</p>
+                    </div>
+                    <div class="option-card" data-value="large">
+                        <h3>5–7 м²</h3>
+                        <p>Просторное помещение</p>
+                    </div>
+                    <div class="option-card" data-value="xlarge">
+                        <h3>Более 7 м²</h3>
+                        <p>Большая площадь</p>
+                    </div>
+                </div>
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep()">Назад</button>
+                </div>
+            </div>
+
+            <!-- Шаг 3: Уровень ремонта -->
+            <div class="step" data-step="3">
+                <h2 class="step-title">Выберите уровень ремонта</h2>
+                <div class="options-grid">
+                    <div class="option-card" data-value="cosmetic">
+                        <h3>Косметический</h3>
+                        <p>Демонтаж, замена напольного и настенного покрытия, установка финишной сантехники</p>
+                    </div>
+                    <div class="option-card" data-value="standard">
+                        <h3>Стандарт</h3>
+                        <p>Демонтаж, черновые отделочные работы, гидроизоляция, разводка труб ХВС, ГВС и канализации, плиточные работы, электрика, установка финишной сантехники</p>
+                    </div>
+                    <div class="option-card" data-value="premium">
+                        <h3>Премиум</h3>
+                        <p>Всё что и в стандарте + индивидуальные дизайнерские решения, дизайн-проект</p>
+                    </div>
+                </div>
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep()">Назад</button>
+                </div>
+            </div>
+
+            <!-- Шаг 4: Дополнительные работы -->
+            <div class="step" data-step="4">
+                <h2 class="step-title">Дополнительные работы</h2>
+                <div class="checkbox-options">
+                    <div class="checkbox-card" data-value="floor">
+                        <input type="checkbox" id="floor">
+                        <div class="checkbox-label">
+                            <h4>Монтаж тёплого пола</h4>
+                            <span>+ 5 000 – 15 000 ₽</span>
+                        </div>
+                    </div>
+                    <div class="checkbox-card" data-value="protection">
+                        <input type="checkbox" id="protection">
+                        <div class="checkbox-label">
+                            <h4>Монтаж системы защиты от протечки</h4>
+                            <span>+ 15 000 – 25 000 ₽</span>
+                        </div>
+                    </div>
+                    <div class="checkbox-card" data-value="door">
+                        <input type="checkbox" id="door">
+                        <div class="checkbox-label">
+                            <h4>Замена двери (1 шт)</h4>
+                            <span>+ 8 000 – 12 000 ₽</span>
+                        </div>
+                    </div>
+                    <div class="checkbox-card" data-value="garbage">
+                        <input type="checkbox" id="garbage">
+                        <div class="checkbox-label">
+                            <h4>Вынос и вывоз строительного мусора</h4>
+                            <span>+ 10 000 – 20 000 ₽</span>
+                        </div>
+                    </div>
+                    <div class="checkbox-card" data-value="demolition">
+                        <input type="checkbox" id="demolition">
+                        <div class="checkbox-label">
+                            <h4>Демонтаж перегородок</h4>
+                            <span>+ 5 000 – 25 000 ₽</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep()">Назад</button>
+                    <button class="btn btn-primary" onclick="nextStep()">Далее</button>
+                </div>
+            </div>
+
+            <!-- Шаг 5: Сроки -->
+            <div class="step" data-step="5">
+                <h2 class="step-title">Желаемые сроки выполнения</h2>
+                <div class="options-grid">
+                    <div class="option-card" data-value="urgent">
+                        <h3>Срочно</h3>
+                        <p>В течение недели</p>
+                    </div>
+                    <div class="option-card" data-value="month">
+                        <h3>В течение месяца</h3>
+                        <p>Стандартные сроки</p>
+                    </div>
+                    <div class="option-card" data-value="flexible">
+                        <h3>1–3 месяца</h3>
+                        <p>Гибкий график</p>
+                    </div>
+                    <div class="option-card" data-value="planning">
+                        <h3>Пока прицениваюсь</h3>
+                        <p>Планирую на будущее</p>
+                    </div>
+                </div>
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep()">Назад</button>
+                </div>
+            </div>
+
+            <!-- Результат -->
+            <div class="result-screen">
+                <h2 class="result-title">Расчёт готов</h2>
+                <p class="result-subtitle">Ориентир по бюджету вашего ремонта</p>
+
+                <div class="discount-banner">
+                    <h3>🎁 Специальное предложение</h3>
+                    <p>Свяжитесь с нами прямо сейчас и получите скидку 10%<br>на весь объем работ</p>
+                    <div class="discount-label">ПРОМОКОД: REMONT10</div>
+                </div>
+
+                <div class="price-range">
+                    <div class="price-label">Стоимость ремонта</div>
+                    <div class="price-value" id="priceResult">от 350 000 ₽ до 525 000 ₽</div>
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+                        <div style="font-size: 14px; opacity: 0.8; margin-bottom: 10px;">Со скидкой 10%</div>
+                        <div style="font-size: 32px; font-weight: 700; color: #c8a16e;" id="priceDiscount">от 315 000 ₽ до 472 500 ₽</div>
+                    </div>
+                    <p class="price-note">Цена ориентировочная. Точная смета формируется инженером после замера объекта и консультации по материалам.</p>
+                </div>
+
+                <div class="summary-block">
+                    <h3 class="summary-title">Параметры вашего ремонта</h3>
+                    <div class="summary-item">
+                        <span class="summary-label">Тип помещения:</span>
+                        <span class="summary-value" id="summaryType">—</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Площадь:</span>
+                        <span class="summary-value" id="summaryArea">—</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Уровень ремонта:</span>
+                        <span class="summary-value" id="summaryLevel">—</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Дополнительные работы:</span>
+                        <span class="summary-value" id="summaryExtras">—</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Сроки:</span>
+                        <span class="summary-value" id="summaryTiming">—</span>
+                    </div>
+                </div>
+
+                <button class="btn-submit" onclick="sendToTelegram()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8C16.49 10.38 15.84 14.22 15.51 15.99C15.37 16.74 15.09 16.99 14.83 17.02C14.25 17.07 13.81 16.64 13.25 16.27C12.37 15.69 11.87 15.33 11.02 14.77C10.03 14.12 10.67 13.76 11.24 13.18C11.39 13.03 13.95 10.7 14 10.49C14.0069 10.4582 14.006 10.4252 13.9973 10.3938C13.9886 10.3624 13.9724 10.3337 13.95 10.31C13.89 10.26 13.81 10.28 13.74 10.29C13.65 10.31 12.25 11.24 9.52 13.08C9.12 13.35 8.76 13.49 8.44 13.48C8.08 13.47 7.4 13.28 6.89 13.11C6.26 12.91 5.77 12.8 5.81 12.45C5.83 12.27 6.08 12.09 6.55 11.9C9.47 10.63 11.41 9.79 12.38 9.39C15.16 8.23 15.73 8.03 16.11 8.03C16.19 8.03 16.38 8.05 16.5 8.15C16.6 8.23 16.63 8.34 16.64 8.42C16.63 8.48 16.65 8.66 16.64 8.8Z" fill="white"/>
+                    </svg>
+                    Обсудить детали ремонта
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            // Фиксированные базовые цены для косметического ремонта
+            cosmeticBase: {
+                toilet: 70000,
+                bathroom: 120000,
+                combined: 160000,
+                bathroom_toilet: 190000
+            },
+            // Надбавки за площадь для косметического ремонта
+            cosmeticAreaSurcharge: {
+                small: 0,
+                medium: 10000,
+                large: 20000,
+                xlarge: 30000
+            },
+            // Цены за м² для стандарта и премиума
+            pricePerSqm: {
+                standard: { min: 70000, max: 90000 },
+                premium: { min: 90000, max: 110000 }
+            },
+            // Средняя площадь для каждой категории
+            averageArea: {
+                small: 2.5,
+                medium: 4,
+                large: 6,
+                xlarge: 8
+            },
+            // Дополнительные работы
+            extras: {
+                floor: { min: 5000, max: 15000 },
+                protection: { min: 15000, max: 25000 },
+                door: { min: 8000, max: 12000 },
+                garbage: { min: 10000, max: 20000 },
+                demolition: { min: 5000, max: 25000 }
+            },
+            labels: {
+                type: {
+                    bathroom: 'Ванная комната',
+                    toilet: 'Туалет',
+                    combined: 'Совмещённый санузел',
+                    bathroom_toilet: 'Ванная + туалет'
+                },
+                area: {
+                    small: 'До 3 м²',
+                    medium: '3–5 м²',
+                    large: '5–7 м²',
+                    xlarge: 'Более 7 м²'
+                },
+                level: {
+                    cosmetic: 'Косметический',
+                    standard: 'Стандарт',
+                    premium: 'Премиум'
+                },
+                timing: {
+                    urgent: 'Срочно',
+                    month: 'В течение месяца',
+                    flexible: '1–3 месяца',
+                    planning: 'Пока прицениваюсь'
+                },
+                extras: {
+                    floor: 'Монтаж тёплого пола',
+                    protection: 'Система защиты от протечки',
+                    door: 'Замена двери',
+                    garbage: 'Вывоз мусора',
+                    demolition: 'Демонтаж перегородок'
+                }
+            },
+            telegram: {
+                username: '+79168000476'
+            }
+        };
+
+        const state = {
+            currentStep: 1,
+            totalSteps: 5,
+            selections: {
+                type: null,
+                area: null,
+                level: null,
+                extras: [],
+                timing: null
+            }
+        };
+
+        function updateProgress() {
+            const progress = (state.currentStep / state.totalSteps) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showStep(stepNumber) {
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.querySelector(`[data-step="${stepNumber}"]`).classList.add('active');
+            state.currentStep = stepNumber;
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function nextStep() {
+            const currentStepElement = document.querySelector(`[data-step="${state.currentStep}"]`);
+            const stepType = getStepType(state.currentStep);
+            
+            if (stepType === 'extras') {
+                if (state.currentStep < state.totalSteps) {
+                    showStep(state.currentStep + 1);
+                }
+                return;
+            }
+
+            const selected = currentStepElement.querySelector('.option-card.selected');
+            if (!selected) {
+                alert('Пожалуйста, выберите один из вариантов');
+                return;
+            }
+
+            if (state.currentStep < state.totalSteps) {
+                showStep(state.currentStep + 1);
+            }
+        }
+
+        function prevStep() {
+            if (state.currentStep > 1) {
+                showStep(state.currentStep - 1);
+            }
+        }
+
+        function getStepType(stepNumber) {
+            const types = ['type', 'area', 'level', 'extras', 'timing'];
+            return types[stepNumber - 1];
+        }
+
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const step = this.closest('.step');
+                const stepNumber = parseInt(step.dataset.step);
+                const stepType = getStepType(stepNumber);
+
+                step.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+
+                state.selections[stepType] = this.dataset.value;
+
+                // Автоматический переход на следующий шаг (кроме шага с чекбоксами)
+                if (stepType !== 'extras') {
+                    setTimeout(() => {
+                        // Если это последний шаг - вызываем расчет, иначе переходим дальше
+                        if (stepNumber === state.totalSteps) {
+                            calculatePrice();
+                        } else {
+                            nextStep();
+                        }
+                    }, 300);
+                }
+            });
+        });
+
+        document.querySelectorAll('.checkbox-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.type !== 'checkbox') {
+                    const checkbox = this.querySelector('input[type="checkbox"]');
+                    checkbox.checked = !checkbox.checked;
+                }
+                
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                const value = this.dataset.value;
+
+                if (checkbox.checked) {
+                    this.classList.add('selected');
+                    if (!state.selections.extras.includes(value)) {
+                        state.selections.extras.push(value);
+                    }
+                } else {
+                    this.classList.remove('selected');
+                    state.selections.extras = state.selections.extras.filter(v => v !== value);
+                }
+            });
+        });
+
+        function calculatePrice() {
+            const { type, area, level, extras, timing } = state.selections;
+
+            if (!area || !level || !timing) {
+                alert('Пожалуйста, заполните все поля');
+                return;
+            }
+
+            let minPrice, maxPrice;
+
+            // МОДЕЛЬ №1: Косметический ремонт (фиксированная база + надбавка за площадь)
+            if (level === 'cosmetic') {
+                const basePrice = CONFIG.cosmeticBase[type];
+                const areaSurcharge = CONFIG.cosmeticAreaSurcharge[area];
+                
+                // Минимальная цена = база + надбавка
+                minPrice = basePrice + areaSurcharge;
+                // Максимальная цена = мин + 20%
+                maxPrice = minPrice * 1.2;
+            } 
+            // МОДЕЛЬ №2: Стандарт и Премиум (цена за м² × площадь)
+            else {
+                const priceRange = CONFIG.pricePerSqm[level];
+                const sqm = CONFIG.averageArea[area];
+                
+                minPrice = priceRange.min * sqm;
+                maxPrice = priceRange.max * sqm;
+            }
+
+            // Добавляем стоимость дополнительных работ
+            extras.forEach(extra => {
+                const extraCost = CONFIG.extras[extra];
+                minPrice += extraCost.min;
+                maxPrice += extraCost.max;
+            });
+
+            // Округляем до тысяч
+            minPrice = Math.round(minPrice / 1000) * 1000;
+            maxPrice = Math.round(maxPrice / 1000) * 1000;
+
+            // Вычисляем цену со скидкой 10%
+            const minPriceDiscount = Math.round((minPrice * 0.9) / 1000) * 1000;
+            const maxPriceDiscount = Math.round((maxPrice * 0.9) / 1000) * 1000;
+
+            document.getElementById('priceResult').textContent = 
+                `от ${minPrice.toLocaleString('ru-RU')} ₽ до ${maxPrice.toLocaleString('ru-RU')} ₽`;
+
+            document.getElementById('priceDiscount').textContent = 
+                `от ${minPriceDiscount.toLocaleString('ru-RU')} ₽ до ${maxPriceDiscount.toLocaleString('ru-RU')} ₽`;
+
+            document.getElementById('summaryType').textContent = CONFIG.labels.type[type] || '—';
+            document.getElementById('summaryArea').textContent = CONFIG.labels.area[area] || '—';
+            document.getElementById('summaryLevel').textContent = CONFIG.labels.level[level] || '—';
+            
+            const extrasText = extras.length > 0 
+                ? extras.map(e => CONFIG.labels.extras[e]).join(', ')
+                : 'Не выбрано';
+            document.getElementById('summaryExtras').textContent = extrasText;
+            document.getElementById('summaryTiming').textContent = CONFIG.labels.timing[timing] || '—';
+
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.querySelector('.result-screen').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function sendToTelegram() {
+            const { type, area, level, extras, timing } = state.selections;
+            
+            const priceText = document.getElementById('priceResult').textContent;
+            const priceDiscountText = document.getElementById('priceDiscount').textContent;
+            const extrasText = extras.length > 0 
+                ? extras.map(e => CONFIG.labels.extras[e]).join(', ')
+                : 'Не выбрано';
+
+            const message = `🔧 ЗАЯВКА НА РЕМОНТ ВАННОЙ КОМНАТЫ
+
+Тип помещения: ${CONFIG.labels.type[type]}
+Площадь: ${CONFIG.labels.area[area]}
+Уровень ремонта: ${CONFIG.labels.level[level]}
+Дополнительные работы: ${extrasText}
+Желаемые сроки: ${CONFIG.labels.timing[timing]}
+
+💰 Ориентир по бюджету: ${priceText}
+🎁 Со скидкой 10%: ${priceDiscountText}
+
+📌 ПРОМОКОД: REMONT10
+Хочу получить скидку 10% на ремонт!
+
+Прошу связаться для уточнения деталей и расчёта точной сметы.`;
+
+            const telegramUrl = `https://t.me/${CONFIG.telegram.username}?text=${encodeURIComponent(message)}`;
+            window.open(telegramUrl, '_blank');
+        }
+
+        updateProgress();
+    </script>
+</body>
+</html>
